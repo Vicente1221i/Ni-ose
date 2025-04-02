@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Discipulado</title>
+    <link rel="stylesheet" href="niños.css">
+
+</head>
+<body>
+    <h1>Registro de Discipulado</h1>
+    <form id="registroForm">
+        <label for="nombre">Nombre completo:</label>
+        <input type="text" id="nombre" placeholder="Nombre completo" required>
+        <label for="edad">Edad (opcional):</label>
+        <input type="number" id="edad" placeholder="Edad">
+        <button type="button" onclick="agregarParticipante()">Agregar participante</button>
+    </form>
+    <table id="tablaParticipantes">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Participación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        
+        </tbody>
+    </table>
+
+    <script>
+        function cargarParticipantes() {
+            const tabla = document.getElementById('tablaParticipantes').getElementsByTagName('tbody')[0];
+            const datos = JSON.parse(localStorage.getItem('participantes')) || [];
+            tabla.innerHTML = '';
+            datos.forEach((participante, index) => {
+                const nuevaFila = tabla.insertRow();
+                nuevaFila.innerHTML = `
+                    <td>${participante.nombre}</td>
+                    <td>${participante.edad || '-'}</td>
+                    <td><input type="checkbox" ${participante.participado ? 'checked' : ''} onchange="actualizarParticipacion(${index}, this.checked)"></td>
+                    <td><button onclick="eliminarParticipante(${index})">Eliminar</button></td>
+                `;
+            });
+        }
+
+        function agregarParticipante() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const edad = document.getElementById('edad').value;
+            if (nombre) {
+                const participantes = JSON.parse(localStorage.getItem('participantes')) || [];
+                participantes.push({ nombre, edad, participado: false });
+                localStorage.setItem('participantes', JSON.stringify(participantes));
+                cargarParticipantes();
+                document.getElementById('registroForm').reset();
+            } else {
+                alert('Por favor, ingresa un nombre válido.');
+            }
+        }
+
+        function eliminarParticipante(index) {
+            const participantes = JSON.parse(localStorage.getItem('participantes')) || [];
+            participantes.splice(index, 1);
+            localStorage.setItem('participantes', JSON.stringify(participantes));
+            cargarParticipantes();
+        }
+
+        function actualizarParticipacion(index, estado) {
+            const participantes = JSON.parse(localStorage.getItem('participantes')) || [];
+            participantes[index].participado = estado;
+            localStorage.setItem('participantes', JSON.stringify(participantes));
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarParticipantes);
+    </script>
+</body>
+</html>
